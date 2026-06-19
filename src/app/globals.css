@@ -1,0 +1,195 @@
+@import "tailwindcss";
+
+:root {
+  --app-bg: #0c0a08;
+  --paper: #f8f0dc;
+  --ink: #14100d;
+  --muted: #d7d0c5;
+  --gold: #f5d55b;
+  --gold-strong: #d7a91e;
+  --alert: #c84333;
+  --green: #5f8c69;
+  --line: rgba(255, 255, 255, 0.1);
+}
+
+@theme inline {
+  --color-background: var(--app-bg);
+  --color-foreground: var(--paper);
+  --font-display: var(--font-teko);
+  --font-sans: var(--font-plex-sans);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--app-bg);
+}
+
+body {
+  min-height: 100vh;
+  background: var(--app-bg);
+  color: var(--paper);
+  font-family: var(--font-plex-sans), sans-serif;
+}
+
+::selection {
+  background: rgba(245, 213, 91, 0.25);
+  color: var(--paper);
+}
+
+a,
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.bureau-card {
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01)),
+    linear-gradient(145deg, rgba(24, 20, 17, 0.98), rgba(12, 10, 8, 0.96));
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.primary-button,
+.secondary-button,
+.nav-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  padding: 0.9rem 1.2rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+.primary-button {
+  border: 1px solid rgba(245, 213, 91, 0.38);
+  background: linear-gradient(180deg, #f5d55b, #d7a91e);
+  color: #19120b;
+  box-shadow: 0 18px 40px rgba(215, 169, 30, 0.24);
+}
+
+.primary-button:hover {
+  transform: translateY(-1px);
+}
+
+.secondary-button,
+.nav-pill {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--paper);
+}
+
+.secondary-button:hover,
+.nav-pill:hover {
+  transform: translateY(-1px);
+  border-color: rgba(245, 213, 91, 0.45);
+  color: var(--gold);
+}
+
+.secondary-button:disabled,
+.primary-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  transform: none;
+}
+
+.warning-divider {
+  position: relative;
+  height: 14px;
+  overflow: hidden;
+  border-radius: 999px;
+  background:
+    repeating-linear-gradient(
+      -45deg,
+      rgba(245, 213, 91, 0.85),
+      rgba(245, 213, 91, 0.85) 20px,
+      rgba(20, 16, 13, 0.9) 20px,
+      rgba(20, 16, 13, 0.9) 40px
+    );
+}
+
+.bureau-input,
+.bureau-select {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  background: rgba(0, 0, 0, 0.18);
+  color: var(--paper);
+  padding: 0.95rem 1rem;
+  font-size: 0.95rem;
+  outline: none;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms ease;
+}
+
+.bureau-input::placeholder {
+  color: rgba(215, 208, 197, 0.6);
+}
+
+.bureau-input:focus,
+.bureau-select:focus {
+  border-color: rgba(245, 213, 91, 0.55);
+  box-shadow: 0 0 0 3px rgba(245, 213, 91, 0.14);
+}
+
+.bureau-select {
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--gold) 50%),
+    linear-gradient(135deg, var(--gold) 50%, transparent 50%);
+  background-position:
+    calc(100% - 22px) calc(50% - 3px),
+    calc(100% - 16px) calc(50% - 3px);
+  background-size: 6px 6px;
+  background-repeat: no-repeat;
+}
+
+.bureau-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.bureau-error {
+  font-size: 0.78rem;
+  color: #ffcab7;
+}
+
+.bureau-field {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  background: rgba(0, 0, 0, 0.14);
+  padding: 0.95rem 1rem;
+}
+
+.bureau-field dt {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.bureau-field dd {
+  margin-top: 0.5rem;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--paper);
+}
