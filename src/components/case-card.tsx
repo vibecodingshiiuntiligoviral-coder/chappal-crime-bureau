@@ -2,13 +2,15 @@ import Link from "next/link";
 
 import { ChappalAvatar } from "@/components/chappal-avatar";
 import { StatusBadge, ThreatBadge } from "@/components/status-badge";
-import { computeThreatLevel, formatTimeAgo } from "@/lib/case-helpers";
+import { CASE_CLOSED_MESSAGE } from "@/lib/constants";
+import { formatTimeAgo } from "@/lib/case-helpers";
 import type { CaseRecord, CaseStatus } from "@/types";
 
 interface CaseCardProps {
   caseRecord: CaseRecord;
   liveStatus: CaseStatus;
   tipCount: number;
+  isOwner: boolean;
   onSendTip: () => void;
   onMarkFound: () => void;
 }
@@ -17,10 +19,11 @@ export function CaseCard({
   caseRecord,
   liveStatus,
   tipCount,
+  isOwner,
   onSendTip,
   onMarkFound,
 }: CaseCardProps) {
-  const threatLevel = computeThreatLevel(caseRecord);
+  const isClosed = caseRecord.status === "found";
 
   return (
     <article className="bureau-card group flex flex-col gap-4 p-4 sm:p-5">
@@ -30,6 +33,7 @@ export function CaseCard({
             color={caseRecord.color}
             nickname={caseRecord.nickname}
             type={caseRecord.type}
+            imageUrl={caseRecord.imageUrl}
           />
           <div className="min-w-0">
             <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#f5d55b]">
@@ -49,7 +53,7 @@ export function CaseCard({
 
         <div className="flex flex-col items-end gap-2">
           <StatusBadge status={liveStatus} />
-          <ThreatBadge level={threatLevel} />
+          <ThreatBadge level={caseRecord.threatLevel} />
         </div>
       </div>
 
@@ -75,32 +79,45 @@ export function CaseCard({
       </dl>
 
       <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#b7b0a5]">
-        <span className="rounded-full border border-white/10 px-3 py-1">
+        <span className="rounded-[10px] border border-white/10 px-3 py-1">
           Tips {tipCount}
         </span>
         {caseRecord.instagramHandle ? (
-          <span className="rounded-full border border-white/10 px-3 py-1">
+          <span className="rounded-[10px] border border-white/10 px-3 py-1">
             @{caseRecord.instagramHandle}
           </span>
         ) : null}
       </div>
 
-      <div className="flex flex-col gap-2 sm:flex-row">
+      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
         <Link className="primary-button flex-1 text-center" href={`/cases/${caseRecord.caseId}`}>
           View Case
         </Link>
-        <button type="button" className="secondary-button flex-1" onClick={onSendTip}>
-          Send Tip
-        </button>
-        <button
-          type="button"
-          className="secondary-button flex-1"
-          onClick={onMarkFound}
-          disabled={liveStatus === "Found"}
-        >
-          {liveStatus === "Found" ? "Already Found" : "Mark Found"}
-        </button>
+        {!isClosed && !isOwner ? (
+          <button type="button" className="secondary-button flex-1" onClick={onSendTip}>
+            Send Tip
+          </button>
+        ) : null}
+        {isOwner && !isClosed ? (
+          <button type="button" className="secondary-button flex-1" onClick={onMarkFound}>
+            Mark Found
+          </button>
+        ) : null}
+        {isOwner && isClosed ? (
+          <span className="inline-flex flex-1 items-center justify-center rounded-full border border-white/10 bg-black/15 px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#b7b0a5]">
+            Already Found
+          </span>
+        ) : null}
+        {!isOwner && isClosed ? (
+          <span className="inline-flex flex-1 items-center justify-center rounded-full border border-[#5f8c69]/35 bg-[#132119] px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#cfe3d0]">
+            CASE CLOSED
+          </span>
+        ) : null}
       </div>
+
+      {isClosed ? (
+        <p className="text-xs leading-5 text-[#b7b0a5]">{CASE_CLOSED_MESSAGE}</p>
+      ) : null}
     </article>
   );
 }

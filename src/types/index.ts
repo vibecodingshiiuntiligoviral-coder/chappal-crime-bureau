@@ -17,22 +17,33 @@ export type CrimeScene =
   | "House Party"
   | "Other";
 
-export type StoredCaseStatus = "Missing" | "Found";
-export type CaseStatus = StoredCaseStatus | "Under Investigation";
+export type StoredCaseStatus = "missing" | "found";
+export type CaseStatus = "Missing" | "Found / Case Closed" | "Under Investigation";
 export type ThreatLevel = "Low" | "Medium" | "High";
+export type ImageStatus = "none" | "active" | "removed" | string;
+export type ReportTargetType = "case" | "tip";
 
-export type TipPresetKey =
-  | "saw-nearby"
-  | "check-rack"
-  | "uncle-involvement"
+export type TipType =
+  | "sighting"
+  | "rack-check"
+  | "uncle-suspected"
   | "friend-prank"
-  | "emotionally-moved-on";
+  | "emotionally-moved-on"
+  | "hostage-roleplay"
+  | "custom";
+
+export type TipPresetType = Exclude<TipType, "hostage-roleplay" | "custom">;
 
 export type ReportReason =
-  | "real-info"
-  | "real-person"
-  | "harassment"
-  | "spam";
+  | "phone-number"
+  | "real-person-accusation"
+  | "abuse"
+  | "exact-address"
+  | "spam"
+  | "adult-content"
+  | "wrong-image"
+  | "face-person-shown"
+  | "other";
 
 export interface CaseFormValues {
   nickname: string;
@@ -43,29 +54,74 @@ export interface CaseFormValues {
   lastSeenClue: string;
   reward: string;
   instagramHandle: string;
+  primarySuspect: string;
 }
 
 export interface CaseRecord extends CaseFormValues {
+  id: string;
   caseId: string;
+  ownerId: string;
+  status: StoredCaseStatus;
+  threatLevel: ThreatLevel;
+  tipCount: number;
+  imagePath: string | null;
+  imageStatus: ImageStatus;
+  imageUrl: string | null;
+  sceneImagePath: string | null;
+  sceneImageStatus: ImageStatus;
+  sceneImageUrl: string | null;
+  closureWhoTookIt: string;
+  closureFoundLocation: string;
+  closureTipsHelped: boolean;
+  closureHelpfulTipId: string | null;
+  closureRewardDelivered: boolean | null;
+  closureSummary: string;
+  closedAt: number | null;
   createdAt: number;
   updatedAt: number;
-  createdByUid: string;
-  status: StoredCaseStatus;
 }
 
 export interface TipRecord {
   id: string;
   caseId: string;
-  kind: "preset" | "custom";
-  presetKey: string;
+  authorId: string;
+  type: TipType;
   message: string;
+  authorAlias: string;
+  authorInstagram: string;
+  attributionLabel: string;
   createdAt: number;
-  createdByUid: string;
+}
+
+export interface TipAttributionInput {
+  alias: string;
+  instagramHandle: string;
+}
+
+export interface CaseClosureFormValues {
+  whoTookIt: string;
+  foundLocation: string;
+  tipsHelped: "yes" | "no";
+  helpfulTipId: string;
+  rewardDelivered: "yes" | "no" | "skip";
+  summary: string;
+}
+
+export interface CaseClosurePayload {
+  whoTookIt: string | null;
+  foundLocation: string;
+  tipsHelped: boolean;
+  helpfulTipId: string | null;
+  rewardDelivered: boolean | null;
+  summary: string | null;
 }
 
 export interface ReportPayload {
   reason: ReportReason;
   note: string;
+  targetType: ReportTargetType;
+  caseId: string;
+  tipId?: string | null;
 }
 
 export interface SessionState {
@@ -83,11 +139,25 @@ export interface CaseFieldErrors {
   lastSeenClue?: string;
   reward?: string;
   instagramHandle?: string;
+  primarySuspect?: string;
+  image?: string;
+  sceneImage?: string;
+  form?: string;
+}
+
+export interface ClosureFieldErrors {
+  whoTookIt?: string;
+  foundLocation?: string;
+  helpfulTipId?: string;
+  summary?: string;
   form?: string;
 }
 
 export interface PreviewCaseCard extends CaseRecord {
-  tipCount: number;
   liveStatus: CaseStatus;
-  threatLevel: ThreatLevel;
+}
+
+export interface PreparedCaseImage {
+  blob: Blob;
+  previewUrl: string;
 }

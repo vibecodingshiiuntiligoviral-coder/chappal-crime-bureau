@@ -3,21 +3,27 @@
 import { useState } from "react";
 
 import { ModalShell } from "@/components/modal-shell";
-import { useFirebaseSession } from "@/components/providers/firebase-session-provider";
+import { useSupabaseSession } from "@/components/providers/supabase-session-provider";
 import { REPORT_REASONS } from "@/lib/constants";
-import { submitCaseReport } from "@/lib/firestore";
+import { submitReport } from "@/lib/supabase-data";
 import { validateReport } from "@/lib/validation";
-import type { CaseRecord, ReportReason } from "@/types";
+import type { CaseRecord, ReportReason, TipRecord } from "@/types";
 
 interface ReportPanelProps {
   open: boolean;
   caseRecord: CaseRecord | null;
+  tipRecord?: TipRecord | null;
   onClose: () => void;
 }
 
-export function ReportPanel({ open, caseRecord, onClose }: ReportPanelProps) {
-  const session = useFirebaseSession();
-  const [reason, setReason] = useState<ReportReason>("real-info");
+export function ReportPanel({
+  open,
+  caseRecord,
+  tipRecord = null,
+  onClose,
+}: ReportPanelProps) {
+  const session = useSupabaseSession();
+  const [reason, setReason] = useState<ReportReason>("phone-number");
   const [note, setNote] = useState("");
   const [statusMessage, setStatusMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -37,7 +43,14 @@ export function ReportPanel({ open, caseRecord, onClose }: ReportPanelProps) {
       return;
     }
 
-    const validation = validateReport({ reason, note });
+    const validation = validateReport({
+      reason,
+      note,
+      targetType: tipRecord ? "tip" : "case",
+      caseId: currentCase.id,
+      tipId: tipRecord?.id ?? null,
+    });
+
     if ("error" in validation) {
       setStatusMessage(validation.error);
       return;
@@ -47,7 +60,7 @@ export function ReportPanel({ open, caseRecord, onClose }: ReportPanelProps) {
     setIsSubmitting(true);
 
     try {
-      await submitCaseReport(currentCase.caseId, validation.payload, session.uid);
+      await submitReport(validation.payload, session.uid);
       setStatusMessage("Report filed. This stays out of the public feed.");
       setNote("");
     } catch (error) {
@@ -60,7 +73,7 @@ export function ReportPanel({ open, caseRecord, onClose }: ReportPanelProps) {
   return (
     <ModalShell
       open={open}
-      title="Report Case"
+      title={tipRecord ? "Report Tip" : "Report Case"}
       description="This is for misuse moderation only. Reports are not public and they do not accuse anyone automatically."
       onClose={onClose}
     >

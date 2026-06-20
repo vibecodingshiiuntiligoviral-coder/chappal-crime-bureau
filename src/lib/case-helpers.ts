@@ -1,5 +1,11 @@
-import { CRIME_SCENE_RECOVERY_GUIDE, SUSPECT_POOL, THREAT_COPY } from "@/lib/constants";
-import type { CaseRecord, CaseStatus, CrimeScene, ThreatLevel } from "@/types";
+import {
+  CRIME_SCENE_RECOVERY_GUIDE,
+  SEARCH_FILLER_WORDS,
+  SUSPECT_POOL,
+  THREAT_COPY,
+  TIP_AUTHOR_FALLBACK,
+} from "@/lib/constants";
+import type { CaseRecord, CaseStatus, CrimeScene, StoredCaseStatus, ThreatLevel } from "@/types";
 
 function hashString(value: string) {
   let hash = 0;
@@ -58,9 +64,30 @@ export function getThreatCopy(level: ThreatLevel) {
   return THREAT_COPY[level];
 }
 
-export function deriveLiveStatus(status: CaseStatus, tipCount: number): CaseStatus {
-  if (status === "Found") {
-    return "Found";
+export function toDbThreatLevel(level: ThreatLevel) {
+  return level.toLowerCase();
+}
+
+export function fromDbThreatLevel(value: unknown): ThreatLevel {
+  const normalized = String(value ?? "").toLowerCase();
+  if (normalized === "high") {
+    return "High";
+  }
+
+  if (normalized === "medium") {
+    return "Medium";
+  }
+
+  return "Low";
+}
+
+export function fromDbStatus(value: unknown): StoredCaseStatus {
+  return String(value ?? "").toLowerCase() === "found" ? "found" : "missing";
+}
+
+export function deriveLiveStatus(status: StoredCaseStatus, tipCount: number): CaseStatus {
+  if (status === "found") {
+    return "Found / Case Closed";
   }
 
   if (tipCount > 0) {
@@ -85,16 +112,23 @@ export function getRecoveryAdvice(crimeScene: CrimeScene) {
   return CRIME_SCENE_RECOVERY_GUIDE[crimeScene];
 }
 
-export function buildRoleplayNote(caseRecord: CaseRecord) {
-  const signaturePool = ["Sole Mafia", "National Footwear Cell", "Rack Syndicate", "Left Pair Union"];
-  const signature = signaturePool[hashString(caseRecord.caseId) % signaturePool.length];
-  const side = hashString(caseRecord.nickname) % 2 === 0 ? "left" : "right";
-  const snackDemand =
-    caseRecord.reward === "No Reward Only Pain" || caseRecord.reward === "Respect"
-      ? "2 samosas"
-      : caseRecord.reward;
+export function getTipAttributionLabel(alias: string, instagramHandle: string) {
+  const normalizedAlias = alias.trim();
+  const normalizedHandle = instagramHandle.replace(/^@+/, "").trim();
 
-  return `We have your ${side} chappal. It is safe. Send ${snackDemand} and stop abandoning footwear in high-risk zones. - ${signature}`;
+  if (normalizedAlias && normalizedHandle) {
+    return `Tip by: ${normalizedAlias} (@${normalizedHandle})`;
+  }
+
+  if (normalizedAlias) {
+    return `Tip by: ${normalizedAlias}`;
+  }
+
+  if (normalizedHandle) {
+    return `Tip by: @${normalizedHandle}`;
+  }
+
+  return `Tip by: ${TIP_AUTHOR_FALLBACK}`;
 }
 
 export function formatTimeAgo(timestamp: number) {
@@ -124,6 +158,81 @@ export function getDisplayHandle(handle: string) {
   }
 
   return `@${handle.replace(/^@+/, "")}`;
+}
+
+export function normalizeInstagramHandle(handle: string) {
+  return handle.replace(/^@+/, "").trim();
+}
+
+export function normalizeSearchText(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .split(" ")
+    .filter((token) => token && !SEARCH_FILLER_WORDS.includes(token))
+    .join(" ");
+}
+
+function normalizeCaseCode(value: string) {
+  return value.toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+function scoreSearchField(fieldValue: string, normalizedQuery: string) {
+  const normalizedField = normalizeSearchText(fieldValue);
+  if (!normalizedField || !normalizedQuery) {
+    return 0;
+  }
+
+  if (normalizedField === normalizedQuery) {
+    return 160;
+  }
+
+  if (normalizedField.startsWith(normalizedQuery)) {
+    return 130;
+  }
+
+  if (normalizedField.includes(normalizedQuery)) {
+    return 100;
+  }
+
+  const queryTokens = normalizedQuery.split(" ").filter(Boolean);
+  const fieldTokens = normalizedField.split(" ").filter(Boolean);
+  const allTokensMatch = queryTokens.every((queryToken) =>
+    fieldTokens.some((fieldToken) => fieldToken.includes(queryToken)),
+  );
+
+  return allTokensMatch ? 85 : 0;
+}
+
+export function getCaseSearchScore(caseRecord: CaseRecord, rawQuery: string) {
+  const normalizedQuery = normalizeSearchText(rawQuery);
+  if (!normalizedQuery) {
+    return 0;
+  }
+
+  const normalizedCodeQuery = normalizeCaseCode(rawQuery);
+  const normalizedCaseCode = normalizeCaseCode(caseRecord.caseId);
+  const queryLooksLikeCaseCode = normalizedCodeQuery.includes("chpl");
+
+  if (queryLooksLikeCaseCode) {
+    if (normalizedCaseCode === normalizedCodeQuery) {
+      return 2000;
+    }
+
+    if (normalizedCaseCode.includes(normalizedCodeQuery)) {
+      return 1500;
+    }
+  }
+
+  return Math.max(
+    scoreSearchField(caseRecord.caseId, normalizedQuery),
+    scoreSearchField(caseRecord.area, normalizedQuery),
+    scoreSearchField(caseRecord.nickname, normalizedQuery),
+    scoreSearchField(caseRecord.type, normalizedQuery),
+    scoreSearchField(caseRecord.lastSeenClue, normalizedQuery),
+  );
 }
 
 export function pickChappalPalette(color: string) {

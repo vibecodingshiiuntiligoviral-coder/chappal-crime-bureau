@@ -7,24 +7,29 @@ import { useSupabaseSession } from "@/components/providers/supabase-session-prov
 import {
   AUTHOR_ALIAS_MAX_LENGTH,
   CASE_CLOSED_MESSAGE,
+  HOSTAGE_SAFETY_COPY,
   TIP_MESSAGE_MAX_LENGTH,
-  TIP_PRESETS,
 } from "@/lib/constants";
 import { getCooldownError, stampCooldown } from "@/lib/cooldowns";
-import { createCustomTip, createPresetTip } from "@/lib/supabase-data";
-import { validateCustomTip, validateTipAttribution } from "@/lib/validation";
+import { createHostageTip } from "@/lib/supabase-data";
+import { validateHostageClaim, validateTipAttribution } from "@/lib/validation";
 import type { CaseRecord } from "@/types";
 
-interface TipPanelProps {
+interface HostageClaimPanelProps {
   open: boolean;
   caseRecord: CaseRecord | null;
   onClose: () => void;
-  onTipSent: () => void;
+  onClaimSent: () => void;
 }
 
-export function TipPanel({ open, caseRecord, onClose, onTipSent }: TipPanelProps) {
+export function HostageClaimPanel({
+  open,
+  caseRecord,
+  onClose,
+  onClaimSent,
+}: HostageClaimPanelProps) {
   const session = useSupabaseSession();
-  const [customTip, setCustomTip] = useState("");
+  const [message, setMessage] = useState("");
   const [authorAlias, setAuthorAlias] = useState("");
   const [authorInstagram, setAuthorInstagram] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -36,9 +41,8 @@ export function TipPanel({ open, caseRecord, onClose, onTipSent }: TipPanelProps
 
   const isClosed = caseRecord.status === "found";
   const isOwner = session.uid === caseRecord.ownerId;
-  const isEntryBlocked = isClosed || isOwner;
 
-  async function handlePresetTip(presetType: (typeof TIP_PRESETS)[number]["type"]) {
+  async function handleSubmit() {
     const currentCase = caseRecord;
     if (!currentCase) {
       return;
@@ -55,7 +59,7 @@ export function TipPanel({ open, caseRecord, onClose, onTipSent }: TipPanelProps
     }
 
     if (session.uid === currentCase.ownerId) {
-      setErrorMessage("Case owners cannot tip their own FIR.");
+      setErrorMessage("Only other citizens can file a hostage roleplay claim.");
       return;
     }
 
@@ -65,55 +69,7 @@ export function TipPanel({ open, caseRecord, onClose, onTipSent }: TipPanelProps
       return;
     }
 
-    const attribution = validateTipAttribution(authorAlias, authorInstagram);
-    if ("error" in attribution) {
-      setErrorMessage(attribution.error);
-      return;
-    }
-
-    setErrorMessage("");
-    setIsSubmitting(true);
-
-    try {
-      await createPresetTip(currentCase, presetType, session.uid, attribution);
-      stampCooldown(session.uid, "tip");
-      onTipSent();
-      onClose();
-    } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : "Could not send that tip.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  }
-
-  async function handleCustomTip() {
-    const currentCase = caseRecord;
-    if (!currentCase) {
-      return;
-    }
-
-    if (session.status !== "ready" || !session.uid) {
-      setErrorMessage("The desk clerk is not signed in yet.");
-      return;
-    }
-
-    if (currentCase.status === "found") {
-      setErrorMessage(CASE_CLOSED_MESSAGE);
-      return;
-    }
-
-    if (session.uid === currentCase.ownerId) {
-      setErrorMessage("Case owners cannot tip their own FIR.");
-      return;
-    }
-
-    const cooldownMessage = getCooldownError(session.uid, "tip");
-    if (cooldownMessage) {
-      setErrorMessage(cooldownMessage);
-      return;
-    }
-
-    const validation = validateCustomTip(customTip);
+    const validation = validateHostageClaim(message);
     if ("error" in validation) {
       setErrorMessage(validation.error);
       return;
@@ -129,15 +85,17 @@ export function TipPanel({ open, caseRecord, onClose, onTipSent }: TipPanelProps
     setIsSubmitting(true);
 
     try {
-      await createCustomTip(currentCase, validation.message, session.uid, attribution);
+      await createHostageTip(currentCase, validation.message, session.uid, attribution);
       stampCooldown(session.uid, "tip");
-      setCustomTip("");
+      setMessage("");
       setAuthorAlias("");
       setAuthorInstagram("");
-      onTipSent();
+      onClaimSent();
       onClose();
     } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : "Could not send that custom tip.");
+      setErrorMessage(
+        error instanceof Error ? error.message : "Could not send that hostage claim.",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -146,8 +104,8 @@ export function TipPanel({ open, caseRecord, onClose, onTipSent }: TipPanelProps
   return (
     <ModalShell
       open={open}
-      title={`Tip for ${caseRecord.nickname}`}
-      description="Preset tips are safer for v1. Custom tips are public, single-line only, and still not allowed to include names, numbers, threats, or accusations."
+      title="CHAPPAL TAKEN HOSTAGE"
+      description={HOSTAGE_SAFETY_COPY}
       onClose={onClose}
     >
       <div className="modal-stack">
@@ -158,7 +116,7 @@ export function TipPanel({ open, caseRecord, onClose, onTipSent }: TipPanelProps
         ) : null}
         {!isClosed && isOwner ? (
           <p className="rounded-[18px] border border-white/10 bg-black/15 px-4 py-3 text-sm text-[#d7d0c5]">
-            Case owners cannot send tips on their own FIR.
+            Case owners cannot send hostage claims on their own FIR.
           </p>
         ) : null}
 
@@ -175,8 +133,8 @@ export function TipPanel({ open, caseRecord, onClose, onTipSent }: TipPanelProps
                 value={authorAlias}
                 onChange={(event) => setAuthorAlias(event.target.value)}
                 maxLength={AUTHOR_ALIAS_MAX_LENGTH}
-                disabled={isSubmitting || isEntryBlocked}
-                placeholder="Anonymous canteen witness"
+                disabled={isSubmitting || isClosed || isOwner}
+                placeholder="Concerned rack observer"
                 className="bureau-input disabled:cursor-not-allowed disabled:opacity-60"
               />
             </label>
@@ -188,8 +146,8 @@ export function TipPanel({ open, caseRecord, onClose, onTipSent }: TipPanelProps
                 value={authorInstagram}
                 onChange={(event) => setAuthorInstagram(event.target.value)}
                 maxLength={30}
-                disabled={isSubmitting || isEntryBlocked}
-                placeholder="sole_informant"
+                disabled={isSubmitting || isClosed || isOwner}
+                placeholder="hostage_hotline"
                 className="bureau-input disabled:cursor-not-allowed disabled:opacity-60"
               />
             </label>
@@ -199,36 +157,22 @@ export function TipPanel({ open, caseRecord, onClose, onTipSent }: TipPanelProps
           </p>
         </div>
 
-        <div className="grid gap-3">
-          {TIP_PRESETS.map((preset) => (
-            <button
-              key={preset.type}
-              type="button"
-              onClick={() => handlePresetTip(preset.type)}
-              disabled={isSubmitting || isEntryBlocked}
-              className="rounded-[18px] border border-white/10 bg-white/5 px-4 py-3 text-left text-sm text-[#f8f0dc] transition hover:border-[#f5d55b]/50 hover:bg-[#221d16] disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {preset.label}
-            </button>
-          ))}
-        </div>
-
         <div className="rounded-[20px] border border-white/10 bg-black/15 p-4">
           <label className="block text-[11px] font-semibold uppercase tracking-[0.22em] text-[#f5d55b]">
-            Optional short custom tip
+            Roleplay ransom note
           </label>
           <input
-            value={customTip}
-            onChange={(event) => setCustomTip(event.target.value)}
+            value={message}
+            onChange={(event) => setMessage(event.target.value)}
             maxLength={TIP_MESSAGE_MAX_LENGTH}
-            disabled={isSubmitting || isEntryBlocked}
+            disabled={isSubmitting || isClosed || isOwner}
             className="mt-3 w-full rounded-[18px] border border-white/10 bg-[#120f0d] px-4 py-3 text-sm text-[#f8f0dc] outline-none transition focus:border-[#f5d55b]/55 disabled:cursor-not-allowed disabled:opacity-60"
-            placeholder="Example: Check the plastic chair pile near the snack table."
+            placeholder="Example: We have the chappal. Bring 2 samosas to the rack area."
           />
           <div className="mt-2 flex items-center justify-between gap-3 text-xs text-[#b7b0a5]">
-            <span>Single line only. No phone numbers, no real names, no threats.</span>
+            <span>Single line only. No real threats, money demands, names, or numbers.</span>
             <span>
-              {customTip.length}/{TIP_MESSAGE_MAX_LENGTH}
+              {message.length}/{TIP_MESSAGE_MAX_LENGTH}
             </span>
           </div>
         </div>
@@ -242,11 +186,11 @@ export function TipPanel({ open, caseRecord, onClose, onTipSent }: TipPanelProps
 
           <button
             type="button"
-            onClick={handleCustomTip}
-            disabled={isSubmitting || isEntryBlocked}
+            onClick={handleSubmit}
+            disabled={isSubmitting || isClosed || isOwner}
             className="primary-button w-full justify-center"
           >
-            {isSubmitting ? "Submitting Tip..." : "Send Custom Tip"}
+            {isSubmitting ? "Submitting Claim..." : "Submit Hostage Claim"}
           </button>
         </div>
       </div>

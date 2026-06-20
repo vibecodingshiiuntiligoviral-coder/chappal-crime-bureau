@@ -7,30 +7,18 @@ Fake-government community desk for missing chappals. Users can anonymously file 
 - Next.js App Router
 - React 19
 - Tailwind CSS 4
-- Firebase Anonymous Auth
-- Firestore
+- Supabase anonymous auth
+- Supabase Postgres tables: `cases`, `tips`, `reports`
+- Supabase Storage bucket: `case-images`
 - Client-side canvas poster and note downloads
 
 ## Setup
 
 1. Copy `.env.example` to `.env.local`.
-2. Fill in your Firebase web app config values.
-3. Enable `Anonymous` sign-in in Firebase Authentication.
-4. Create a Firestore database.
-5. Deploy the included Firestore rules:
-
-```bash
-firebase deploy --only firestore:rules
-```
-
-If Firebase CLI is not set up yet:
-
-```bash
-npm install -g firebase-tools
-firebase login
-firebase use <your-project-id>
-firebase deploy --only firestore:rules
-```
+2. Fill in `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
+3. Enable anonymous sign-ins in Supabase Auth.
+4. Make sure your existing Supabase SQL schema, RLS policies, and Storage policies are already applied.
+5. Confirm the public storage bucket is named `case-images`.
 
 ## Local Development
 
@@ -41,16 +29,15 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-## Firestore Shape
+## Supabase Shape
 
-Top-level collection:
+- `public.cases`
+- `public.tips`
+- `public.reports`
 
-- `cases/{caseId}`
+Storage path:
 
-Subcollections:
-
-- `cases/{caseId}/tips/{tipId}`
-- `cases/{caseId}/reports/{reportId}`
+- `case-images/{userId}/{caseId}/main.webp`
 
 ## Safety Boundaries In V1
 
@@ -58,14 +45,15 @@ Subcollections:
 - No exact address field.
 - No payments.
 - No private chat.
-- No external APIs beyond Firebase.
+- No external APIs beyond Supabase.
 - No unsafe HTML injection.
 - No dangerous browser permissions.
 - Tips use preset buttons plus a short validated custom field.
 - Reports are private moderation writes, not public accusations.
+- Image uploads are single-image, client-validated, and compressed to WebP before upload when possible.
 
 ## Known Limits
 
-- Content safety is mostly client-side plus structural Firestore rules. Without a trusted backend moderator, someone who bypasses the app UI could still try to send policy-breaking text directly to Firestore.
-- Tip counts are calculated with Firestore count queries from the client, which is simpler for v1 but less efficient than a backend-maintained counter at scale.
+- Content safety is mostly client-side plus your Supabase SQL and RLS policies. Without a trusted moderation backend, someone who bypasses the app UI could still try to send policy-breaking text directly to Supabase.
+- Tip counts are synced from client writes for v1. If this app grows, move that counter to a database trigger or Edge Function.
 - Reports are stored for future moderation, but there is no admin dashboard in this version.

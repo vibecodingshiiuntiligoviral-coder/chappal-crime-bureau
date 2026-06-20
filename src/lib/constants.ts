@@ -4,7 +4,8 @@ import type {
   CrimeScene,
   ReportReason,
   ThreatLevel,
-  TipPresetKey,
+  TipPresetType,
+  TipType,
 } from "@/types";
 
 export const CHAPPAL_TYPES: ChappalType[] = [
@@ -31,65 +32,159 @@ export const CRIME_SCENES: CrimeScene[] = [
 export const STATUS_OPTIONS: CaseStatus[] = [
   "Missing",
   "Under Investigation",
-  "Found",
+  "Found / Case Closed",
 ];
 
-export const COLOR_SUGGESTIONS = [
-  "Black",
-  "Blue",
-  "Brown",
-  "Green",
-  "Grey",
-  "Maroon",
-  "Mint",
-  "Mustard",
-  "Navy",
-  "Orange",
-  "Pink",
-  "Red",
-  "White",
-  "Yellow",
-];
+export const COLOR_OPTIONS = [
+  { value: "", label: "Select color clue" },
+  { value: "Blue", label: "Neela (Blue)" },
+  { value: "Red", label: "Mirchi Laal (Red)" },
+  { value: "Yellow", label: "Haldi Peela (Yellow)" },
+  { value: "Black", label: "Kaala Dhan Black (Black)" },
+  { value: "Orange", label: "Cosmic Orange (Orange)" },
+  { value: "White", label: "Safed Sarkari (White)" },
+  { value: "Grey", label: "Slipper Grey (Grey)" },
+  { value: "Gold", label: "Mehenga Golden (Gold)" },
+  { value: "Brown", label: "Dusty Brown (Brown)" },
+  { value: "Green", label: "Neem Green (Green)" },
+  { value: "Maroon", label: "Shaadi Maroon (Maroon)" },
+  { value: "Mint", label: "Minty Recovery (Mint)" },
+  { value: "Mustard", label: "Mustard Mayhem (Mustard)" },
+  { value: "Navy", label: "Navy Notice (Navy)" },
+  { value: "Pink", label: "Dignified Pink (Pink)" },
+  { value: "Mystery Color", label: "Mystery Color" },
+] as const;
 
 export const REWARD_OPTIONS = [
   "Cutting Chai",
   "Samosa",
-  "₹20 Emotional Support",
+  "Rs 20 Emotional Support",
   "Respect",
   "No Reward Only Pain",
 ];
 
+export const NICKNAME_PLACEHOLDERS = [
+  "Penaldo",
+  "Lefty Legend",
+  "Bathroom Survivor",
+  "Chappal No. 7",
+];
+
+export const AREA_PLACEHOLDERS = [
+  "my bathroom",
+  "hostel corridor",
+  "mandir rack left side",
+  "model society gate",
+];
+
+export const LAST_SEEN_PLACEHOLDERS = [
+  "bas yahin rakha tha, phir society ne dhoka de diya",
+  "seen near hostel corridor, then emotionally unavailable",
+  "kept beside expensive shoes, rookie mistake",
+  "aarti ke time uncle traffic high tha",
+];
+
+export const REWARD_PLACEHOLDERS = [
+  "Cutting chai",
+  "one samosa and public respect",
+  "Maggi + blessings",
+  "Rs 0 but emotional closure",
+];
+
+export const PRIMARY_SUSPECT_PLACEHOLDERS = [
+  "nobody, but vibes illegal thi",
+  "same-size uncle",
+  "friend who said 'main dekh raha hu'",
+  "person wearing suspiciously similar footwear",
+];
+
+export const BUREAU_TICKER_BULLETINS = [
+  "PUBLIC ALERT: Jo banda '2 minute mein aata hu' bolta hai, uske paas apni chappal mat chhodna.",
+  "BUREAU BULLETIN: Left chappal recovered. Right chappal ne independent life choose kar li.",
+  "HIGH RISK ZONE: Temple rack ke paas uncle activity suspicious level par.",
+  "NOTICE: Chai reward emotionally binding hai, legally nahi.",
+  "BREAKING: Hostel corridor mein footwear migration fir se shuru.",
+  "JANHIT MEIN JAARI: Same-size chappal wale logon se satark rahein.",
+  "URGENT: Bathroom slippers ko public area mein akela na chhodein.",
+  "BUREAU UPDATE: Crocs recovery requires written shame certificate.",
+  "CAUTION: Wedding exit par pair-swapper gang active ho sakti hai.",
+  "NATIONAL CONCERN: Ek aur chappal 'bas yahin rakha tha' zone se gayab.",
+  "PUBLIC NOTICE: Chappal hostage claims are roleplay only. Do not ask for real money.",
+  "RECORD DESK: Bureau staff currently processing panic in approximate order received.",
+];
+
+export const DEPARTMENT_CIRCULARS = [
+  "Jisne chappal ulta pehna hai, uski investigation priority low rahegi.",
+  "Duplicate Hawai chappal disputes mein DNA test available nahi hai.",
+  "Jo log rack ke side mein chappal rakhte hain, woh apni kismat khud likhte hain.",
+  "Free prasad rush ke dauraan footwear protection weak ho sakti hai.",
+  "Bathroom chappal ko emotional support footwear maana jayega.",
+  "Same-size uncle remains person of interest.",
+  "Agar chappal mehengi thi, toh rack pe kyun chhodi?",
+  "Lost Crocs cases may be transferred to Fashion Crimes Division.",
+  "Reward in biscuit/chai is emotionally binding only.",
+  "Hostel corridor footwear disputes may take 3-5 business overreactions.",
+  "Mandir rack zone mein confidence se rakhi chappal bhi safe nahi hoti.",
+  "Jo banda 'bas 2 minute' bolta hai, usko evidence ke paas mat chhodo.",
+  "Public filing desk accepts panic, confusion, and loosely verified eyewitness energy.",
+  "Pair-swap victims are advised to remain dramatic but legally calm.",
+];
+
+export const TIP_MESSAGE_MAX_LENGTH = 300;
+export const AUTHOR_ALIAS_MAX_LENGTH = 40;
+export const PRIMARY_SUSPECT_MAX_LENGTH = 80;
+export const CLOSURE_SUMMARY_MAX_LENGTH = 300;
+export const CASE_CLOSED_MESSAGE = "CASE CLOSED. NO NEW TIPS ACCEPTED.";
+export const HOSTAGE_SAFETY_COPY =
+  "Roleplay only. Do not claim real theft, threaten, or ask for real money.";
+export const TIP_AUTHOR_FALLBACK = "Anonymous Informant";
+export const SEARCH_FILLER_WORDS = ["my", "the", "near", "at", "outside", "inside", "in", "on"];
+export const DAILY_FIR_LIMIT = 5;
+export const DAILY_FIR_WINDOW_MS = 24 * 60 * 60 * 1000;
+export const DAILY_FIR_QUOTA_MESSAGE =
+  "Daily F.I.R quota exhausted. Bureau officers are pretending to work. Try again tomorrow.";
+
 export const TIP_PRESETS: Array<{
-  key: TipPresetKey;
+  type: TipPresetType;
   label: string;
   message: string;
 }> = [
   {
-    key: "saw-nearby",
+    type: "sighting",
     label: "Saw similar chappal nearby",
     message: "Saw similar chappal nearby.",
   },
   {
-    key: "check-rack",
+    type: "rack-check",
     label: "Check under the rack",
     message: "Check under the rack.",
   },
   {
-    key: "uncle-involvement",
+    type: "uncle-suspected",
     label: "Possible uncle involvement",
     message: "Possible uncle involvement.",
   },
   {
-    key: "friend-prank",
+    type: "friend-prank",
     label: "Friend prank suspected",
     message: "Friend prank suspected.",
   },
   {
-    key: "emotionally-moved-on",
+    type: "emotionally-moved-on",
     label: "This chappal has emotionally moved on",
     message: "This chappal has emotionally moved on.",
   },
 ];
+
+export const TIP_TYPE_LABELS: Record<TipType, string> = {
+  sighting: "Sighting Tip",
+  "rack-check": "Rack Check",
+  "uncle-suspected": "Uncle Suspected",
+  "friend-prank": "Friend Prank",
+  "emotionally-moved-on": "Emotionally Moved On",
+  "hostage-roleplay": "Hostage Claim",
+  custom: "Custom Tip",
+};
 
 export const REPORT_REASONS: Array<{
   key: ReportReason;
@@ -97,24 +192,49 @@ export const REPORT_REASONS: Array<{
   description: string;
 }> = [
   {
-    key: "real-info",
-    label: "Contains real private info",
-    description: "Use this when someone posted a number, exact address, or other sensitive detail.",
+    key: "phone-number",
+    label: "Phone number shown",
+    description: "Use this if someone posted a phone number or contact info.",
   },
   {
-    key: "real-person",
-    label: "Names a real person",
-    description: "Use this when the FIR or tip targets an actual person by name.",
+    key: "real-person-accusation",
+    label: "Real person accusation",
+    description: "Use this if the FIR or tip points at a real person by name.",
   },
   {
-    key: "harassment",
-    label: "Threatening or hostile",
-    description: "Use this when the joke crosses into threats or abuse.",
+    key: "abuse",
+    label: "Abusive or threatening",
+    description: "Use this if the content becomes hostile instead of playful.",
+  },
+  {
+    key: "exact-address",
+    label: "Exact address shown",
+    description: "Use this if someone shared a precise address or pincode-level detail.",
   },
   {
     key: "spam",
-    label: "Spam or nonsense",
-    description: "Use this when the case is obvious junk, duplicate, or low-effort spam.",
+    label: "Spam or junk",
+    description: "Use this for obvious nonsense, repeated posts, or low-effort spam.",
+  },
+  {
+    key: "adult-content",
+    label: "Adult content",
+    description: "Use this if the text or image is sexual or clearly adult.",
+  },
+  {
+    key: "wrong-image",
+    label: "Wrong image",
+    description: "Use this if the uploaded image does not match the case.",
+  },
+  {
+    key: "face-person-shown",
+    label: "Face or person shown",
+    description: "Use this if the image exposes a person instead of just the footwear.",
+  },
+  {
+    key: "other",
+    label: "Other moderation issue",
+    description: "Use this if the content breaks the vibe in some other way.",
   },
 ];
 
@@ -145,31 +265,35 @@ export const CRIME_SCENE_RECOVERY_GUIDE: Record<CrimeScene, string> = {
 
 export const SUSPECT_POOL = [
   "Same-size uncle",
-  "Random kid",
+  "Random kid with no remorse",
   "Footwear exchange mafia",
   "Friend who said 'wait here'",
-  "The person with suspicious confidence",
-  "Someone who upgraded by mistake",
-  "The chappal rack shadow council",
-  "A person who said 'all black slippers look same'",
+  "Hostel corridor phantom",
+  "Temple rack opportunist",
+  "Wedding exit pair-swapper",
+  "Bathroom bandit",
+  "The person who arrived barefoot but left confident",
 ];
 
-export const CHAPPAL_SWATCHES: Record<
-  string,
-  { primary: string; secondary: string; accent: string }
-> = {
-  black: { primary: "#151515", secondary: "#2d2d2d", accent: "#f5d55b" },
-  blue: { primary: "#23438a", secondary: "#365cae", accent: "#f6f0d8" },
-  brown: { primary: "#6b4423", secondary: "#91613a", accent: "#f8d37a" },
-  green: { primary: "#284c3c", secondary: "#477b5f", accent: "#f0f3d8" },
-  grey: { primary: "#4d5358", secondary: "#7b838a", accent: "#f7f2e6" },
-  maroon: { primary: "#651c28", secondary: "#8b3040", accent: "#f3dfba" },
-  mint: { primary: "#275f54", secondary: "#4c9d8e", accent: "#eff8d8" },
-  mustard: { primary: "#775208", secondary: "#af7a11", accent: "#fff1ba" },
-  navy: { primary: "#17243d", secondary: "#304569", accent: "#ede4be" },
-  orange: { primary: "#934418", secondary: "#ce6b2c", accent: "#fff0d3" },
-  pink: { primary: "#8d3e64", secondary: "#cb6d97", accent: "#fcedd5" },
-  red: { primary: "#802526", secondary: "#bb4345", accent: "#ffe6cc" },
-  white: { primary: "#e7dcc3", secondary: "#fff8e8", accent: "#6a130f" },
-  yellow: { primary: "#a17a0c", secondary: "#dbb52d", accent: "#1d1610" },
-};
+export const TIP_BANNED_WORDS = [
+  "bitch",
+  "bastard",
+  "bc",
+  "mc",
+  "slut",
+  "whore",
+  "porn",
+  "nude",
+  "rape",
+  "kill",
+  "murder",
+  "threaten",
+  "stab",
+  "shoot",
+  "attack",
+  "beat",
+  "burn",
+  "explode",
+  "terrorist",
+  "bomb",
+];

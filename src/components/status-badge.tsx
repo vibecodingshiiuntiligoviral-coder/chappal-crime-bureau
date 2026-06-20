@@ -2,7 +2,7 @@ import type { CaseStatus, ThreatLevel } from "@/types";
 
 export function StatusBadge({ status }: { status: CaseStatus }) {
   const styles =
-    status === "Found"
+    status === "Found / Case Closed"
       ? "border-[#5f8c69]/45 bg-[#173126] text-[#bfe0c3]"
       : status === "Under Investigation"
         ? "border-[#f5d55b]/45 bg-[#2f2914] text-[#f7e39c]"

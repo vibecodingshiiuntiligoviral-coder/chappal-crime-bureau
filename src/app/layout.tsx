@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { IBM_Plex_Sans, Teko } from "next/font/google";
 
 import { SiteShell } from "@/components/layout/site-shell";
-import { FirebaseSessionProvider } from "@/components/providers/firebase-session-provider";
+import { SupabaseSessionProvider } from "@/components/providers/supabase-session-provider";
 
 import "./globals.css";
 
@@ -35,9 +35,9 @@ export default function RootLayout({
       className={`${headingFont.variable} ${bodyFont.variable} h-full antialiased`}
     >
       <body className="min-h-full">
-        <FirebaseSessionProvider>
+        <SupabaseSessionProvider>
           <SiteShell>{children}</SiteShell>
-        </FirebaseSessionProvider>
+        </SupabaseSessionProvider>
       </body>
     </html>
   );
