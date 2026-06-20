@@ -99,29 +99,29 @@ export function CasesFeedScreen() {
 
   return (
     <>
-      <section className="grid gap-6">
-        <div className="bureau-card p-5 sm:p-6">
+      <section className="grid min-w-0 max-w-full gap-6 overflow-x-hidden">
+        <div className="bureau-card min-w-0 max-w-full p-4 sm:p-6">
           <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#f5d55b]">
             Public Bureau Feed
           </p>
-          <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-2xl">
-              <h1 className="font-display text-5xl uppercase leading-none text-[#f8f0dc] sm:text-6xl">
+          <div className="mt-4 flex min-w-0 flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div className="min-w-0 max-w-2xl">
+              <h1 className="break-words font-display text-4xl uppercase leading-none text-[#f8f0dc] min-[390px]:text-5xl sm:text-6xl">
                 Live Cases
               </h1>
               <p className="mt-3 max-w-2xl text-sm leading-7 text-[#d7d0c5] sm:text-base">
                 Browse missing chappal reports, search by area or CHPL code, and witness the country&apos;s least important emergency dashboard.
               </p>
             </div>
-            <div className="rounded-[20px] border border-white/10 bg-black/15 px-4 py-3 text-sm text-[#b7b0a5]">
+            <div className="max-w-full self-start rounded-[20px] border border-white/10 bg-black/15 px-4 py-3 text-sm text-[#b7b0a5] md:self-auto">
               {filteredCases.length} visible case{filteredCases.length === 1 ? "" : "s"}
             </div>
           </div>
 
           <div className="warning-divider my-5" />
 
-          <div className="grid gap-3 md:grid-cols-3">
-            <label className="grid gap-2">
+          <div className="grid min-w-0 gap-3 md:grid-cols-3">
+            <label className="grid min-w-0 gap-2">
               <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#f5d55b]">
                 Area / Case Search
               </span>
@@ -134,7 +134,7 @@ export function CasesFeedScreen() {
               />
             </label>
 
-            <label className="grid gap-2">
+            <label className="grid min-w-0 gap-2">
               <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#f5d55b]">
                 Crime Scene
               </span>
@@ -151,7 +151,7 @@ export function CasesFeedScreen() {
               />
             </label>
 
-            <label className="grid gap-2">
+            <label className="grid min-w-0 gap-2">
               <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#f5d55b]">
                 Status
               </span>
@@ -177,7 +177,7 @@ export function CasesFeedScreen() {
         ) : null}
 
         {isLoading ? (
-          <div className="grid gap-4 lg:grid-cols-2">
+          <div className="grid min-w-0 gap-4 lg:grid-cols-2">
             {[0, 1, 2, 3].map((item) => (
               <div key={item} className="bureau-card animate-pulse p-5">
                 <div className="h-8 w-40 rounded-full bg-white/10" />
@@ -187,7 +187,7 @@ export function CasesFeedScreen() {
             ))}
           </div>
         ) : filteredCases.length ? (
-          <div className="grid gap-4 lg:grid-cols-2">
+          <div className="grid min-w-0 gap-4 lg:grid-cols-2">
             {filteredCases.map(({ caseRecord, liveStatus }) => (
               <CaseCard
                 key={caseRecord.caseId}

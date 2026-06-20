@@ -10,7 +10,7 @@ export function StatusBadge({ status }: { status: CaseStatus }) {
 
   return (
     <span
-      className={`inline-flex rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${styles}`}
+      className={`inline-flex min-w-0 max-w-full items-center justify-center rounded-full border px-2.5 py-1.5 text-center text-[10px] leading-[1.15] font-semibold uppercase tracking-[0.14em] whitespace-normal break-words sm:w-auto sm:px-3 sm:text-[11px] sm:tracking-[0.18em] ${styles}`}
     >
       {status}
     </span>
@@ -27,7 +27,7 @@ export function ThreatBadge({ level }: { level: ThreatLevel }) {
 
   return (
     <span
-      className={`inline-flex rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${styles}`}
+      className={`inline-flex min-w-0 max-w-full items-center justify-center rounded-full border px-2.5 py-1.5 text-center text-[10px] leading-[1.15] font-semibold uppercase tracking-[0.14em] whitespace-normal break-words sm:w-auto sm:px-3 sm:text-[11px] sm:tracking-[0.18em] ${styles}`}
     >
       Threat {level}
     </span>

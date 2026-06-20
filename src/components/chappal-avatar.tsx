@@ -23,7 +23,7 @@ export function ChappalAvatar({
   const showImage = Boolean(imageUrl && failedImageUrl !== imageUrl);
 
   return (
-    <div className="relative h-[8.5rem] w-28 shrink-0 overflow-hidden rounded-[14px] border border-[#e6bf47]/16 bg-[#120f0d] shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
+    <div className="relative h-28 w-24 shrink-0 overflow-hidden rounded-[14px] border border-[#e6bf47]/16 bg-[#120f0d] shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] sm:h-[8.5rem] sm:w-28">
       {showImage ? (
         <>
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -65,7 +65,7 @@ export function ChappalAvatar({
         <span className="rounded-[8px] border border-white/10 bg-black/45 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#f8f0dc]">
           {monogram || "CC"}
         </span>
-        <span className="max-w-[80%] truncate text-[10px] uppercase tracking-[0.16em] text-[#b7b0a5]">
+        <span className="max-w-[80%] truncate text-[9px] uppercase tracking-[0.14em] text-[#b7b0a5] sm:text-[10px] sm:tracking-[0.16em]">
           {type}
         </span>
       </div>

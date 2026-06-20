@@ -26,32 +26,32 @@ export function CaseCard({
   const isClosed = caseRecord.status === "found";
 
   return (
-    <article className="bureau-card group flex flex-col gap-4 p-4 sm:p-5">
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex gap-4">
+    <article className="bureau-card group flex min-w-0 max-w-full flex-col gap-4 overflow-hidden p-4 sm:p-5">
+      <div className="grid min-w-0 gap-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-start md:gap-4">
+        <div className="flex min-w-0 gap-3 sm:gap-4">
           <ChappalAvatar
             color={caseRecord.color}
             nickname={caseRecord.nickname}
             type={caseRecord.type}
             imageUrl={caseRecord.imageUrl}
           />
-          <div className="min-w-0">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#f5d55b]">
+          <div className="min-w-0 flex-1">
+            <p className="break-all text-[11px] font-semibold uppercase tracking-[0.22em] text-[#f5d55b]">
               Case ID {caseRecord.caseId}
             </p>
-            <h3 className="mt-2 font-display text-3xl uppercase leading-none text-[#f8f0dc]">
+            <h3 className="mt-2 break-words font-display text-[2.25rem] uppercase leading-none text-[#f8f0dc] sm:text-3xl">
               {caseRecord.nickname}
             </h3>
-            <p className="mt-1 text-sm text-[#cfc7ba]">
+            <p className="mt-1 break-words text-sm leading-6 text-[#cfc7ba]">
               {caseRecord.type} / {caseRecord.color}
             </p>
-            <p className="mt-2 text-sm text-[#9fa79c]">
+            <p className="mt-2 break-words text-sm text-[#9fa79c]">
               Filed {formatTimeAgo(caseRecord.createdAt)}
             </p>
           </div>
         </div>
 
-        <div className="flex flex-col items-end gap-2">
+        <div className="grid min-w-0 grid-cols-1 gap-2 min-[360px]:grid-cols-2 md:flex md:w-[12.5rem] md:flex-col md:items-end">
           <StatusBadge status={liveStatus} />
           <ThreatBadge level={caseRecord.threatLevel} />
         </div>
@@ -59,57 +59,68 @@ export function CaseCard({
 
       <div className="warning-divider" />
 
-      <dl className="grid gap-3 text-sm sm:grid-cols-2">
-        <div className="bureau-field">
+      <dl className="grid min-w-0 gap-3 text-sm sm:grid-cols-2">
+        <div className="bureau-field min-w-0">
           <dt>Area</dt>
-          <dd>{caseRecord.area}</dd>
+          <dd className="break-words">{caseRecord.area}</dd>
         </div>
-        <div className="bureau-field">
+        <div className="bureau-field min-w-0">
           <dt>Crime Scene</dt>
-          <dd>{caseRecord.crimeScene}</dd>
+          <dd className="break-words">{caseRecord.crimeScene}</dd>
         </div>
-        <div className="bureau-field">
+        <div className="bureau-field min-w-0">
           <dt>Last Seen Clue</dt>
-          <dd>{caseRecord.lastSeenClue}</dd>
+          <dd className="break-words">{caseRecord.lastSeenClue}</dd>
         </div>
-        <div className="bureau-field">
+        <div className="bureau-field min-w-0">
           <dt>Reward</dt>
-          <dd>{caseRecord.reward}</dd>
+          <dd className="break-words">{caseRecord.reward}</dd>
         </div>
       </dl>
 
-      <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#b7b0a5]">
-        <span className="rounded-[10px] border border-white/10 px-3 py-1">
+      <div className="flex min-w-0 flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#b7b0a5]">
+        <span className="max-w-full rounded-[10px] border border-white/10 px-3 py-1 break-words">
           Tips {tipCount}
         </span>
         {caseRecord.instagramHandle ? (
-          <span className="rounded-[10px] border border-white/10 px-3 py-1">
+          <span className="max-w-full rounded-[10px] border border-white/10 px-3 py-1 break-all">
             @{caseRecord.instagramHandle}
           </span>
         ) : null}
       </div>
 
-      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-        <Link className="primary-button flex-1 text-center" href={`/cases/${caseRecord.caseId}`}>
+      <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:flex-wrap">
+        <Link
+          className="primary-button w-full min-w-0 flex-1 justify-center text-center"
+          href={`/cases/${caseRecord.caseId}`}
+        >
           View Case
         </Link>
         {!isClosed && !isOwner ? (
-          <button type="button" className="secondary-button flex-1" onClick={onSendTip}>
+          <button
+            type="button"
+            className="secondary-button w-full min-w-0 flex-1 justify-center text-center"
+            onClick={onSendTip}
+          >
             Send Tip
           </button>
         ) : null}
         {isOwner && !isClosed ? (
-          <button type="button" className="secondary-button flex-1" onClick={onMarkFound}>
+          <button
+            type="button"
+            className="secondary-button w-full min-w-0 flex-1 justify-center text-center"
+            onClick={onMarkFound}
+          >
             Mark Found
           </button>
         ) : null}
         {isOwner && isClosed ? (
-          <span className="inline-flex flex-1 items-center justify-center rounded-full border border-white/10 bg-black/15 px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#b7b0a5]">
+          <span className="inline-flex w-full min-w-0 flex-1 items-center justify-center rounded-full border border-white/10 bg-black/15 px-4 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.18em] text-[#b7b0a5]">
             Already Found
           </span>
         ) : null}
         {!isOwner && isClosed ? (
-          <span className="inline-flex flex-1 items-center justify-center rounded-full border border-[#5f8c69]/35 bg-[#132119] px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#cfe3d0]">
+          <span className="inline-flex w-full min-w-0 flex-1 items-center justify-center rounded-full border border-[#5f8c69]/35 bg-[#132119] px-4 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.18em] text-[#cfe3d0]">
             CASE CLOSED
           </span>
         ) : null}
